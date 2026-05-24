@@ -1,3 +1,24 @@
+.venv/
+.venv-build/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+server.out.log
+server.err.log
+data/config.json
+data/*.local.json
+data/*.db
+data/*.db-*
+data/llm_debug_runs/
+data/runs/
+data/agent_jobs/
+data/reports/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

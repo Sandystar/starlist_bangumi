@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Starlist Bangumi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css?v=20260523-organize-layout" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">SB</div>
+          <div>
+            <strong>Starlist Bangumi</strong>
+            <span>Base · OpenList · TMDB · LLM</span>
+          </div>
+        </div>
+        <nav class="tabs" aria-label="主导航">
+          <button class="tab is-active" data-view="organizeView">资源整理</button>
+          <button class="tab" data-view="pipelineView">整理流水线</button>
+          <button class="tab" data-view="runsView">运行记录</button>
+          <button class="tab" data-view="settingsView">设置</button>
+        </nav>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <h1 id="viewTitle">资源整理</h1>
+            <p id="viewSubtitle">扫描收件箱，分析后进入待整理队列。</p>
+          </div>
+        </header>
+
+        <section id="organizeView" class="view is-active">
+          <div class="organize-layout">
+            <section class="pane queue-pane">
+              <div class="pane-head queue-head">
+                <div>
+                  <h2>待整理队列</h2>
+                </div>
+                <span class="count-pill" id="organizeQueueCount">0 个待整理</span>
+              </div>
+              <div class="toolbar compact queue-toolbar">
+                <button id="startOrganizeQueueBtn" class="success-action">发起整理</button>
+                <button id="clearOrganizeQueueBtn">清空队列</button>
+              </div>
+              <div id="organizeQueueList" class="list compact-list empty">暂无待整理项目</div>
+            </section>
+
+            <div class="organize-columns">
+              <div class="organize-column">
+                <section class="pane fold-section" data-fold-section>
+                  <button class="pane-head fold-head" type="button" aria-expanded="true">
+                    <div>
+                      <h2>扫描</h2>
+                    </div>
+                    <span class="count-pill" id="scanCount">0 个条目</span>
+                  </button>
+                  <div class="fold-body">
+                    <div class="toolbar compact scan-toolbar">
+                      <button id="scanBtn" class="primary">扫描目录</button>
+                      <button id="batchAnalyzeBtn" class="primary">提交选中分析</button>
+                      <button id="selectAllBtn">全选</button>
+                      <button id="clearSelectionBtn">清空</button>
+                    </div>
+                    <div id="scanList" class="list empty">尚未扫描</div>
+                  </div>
+                </section>
+
+                <section class="pane fold-section" data-fold-section>
+                  <button class="pane-head fold-head" type="button" aria-expanded="true">
+                    <div>
+                      <h2>结果列表</h2>
+                    </div>
+                    <span class="count-pill subtle" id="resultCount">0 个结果</span>
+                  </button>
+                  <div class="fold-body">
+                    <div class="toolbar compact">
+                      <button id="refreshResultsBtn">刷新结果</button>
+                      <button id="batchOrganizeBtn" class="danger-lite">成功项入队</button>
+                    </div>
+                    <div id="resultList" class="list result-list empty">等待分析完成</div>
+                  </div>
+                </section>
+              </div>
+
+              <div class="organize-column">
+                <section class="pane fold-section" data-fold-section>
+                  <button class="pane-head fold-head" type="button" aria-expanded="true">
+                    <div>
+                      <h2>当前任务</h2>
+                    </div>
+                    <span class="count-pill" id="analysisTaskCount">0 个进行中</span>
+                  </button>
+                  <div class="fold-body">
+                    <div id="analysisTaskList" class="list compact-list empty">暂无当前任务</div>
+                  </div>
+                </section>
+
+                <section class="pane fold-section" data-fold-section>
+                  <button class="pane-head fold-head" type="button" aria-expanded="true">
+                    <div>
+                      <h2>结果详情</h2>
+                    </div>
+                  </button>
+                  <div class="fold-body">
+                    <div id="resultInspector" class="inspector empty">选择一个分析结果查看详情</div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="pipelineView" class="view">
+          <div class="pipeline-sections">
+            <section class="pipeline-section">
+              <div class="pipeline-section-head">
+                <div>
+                  <h3>进行中的任务</h3>
+                  <p>排队和正在执行的整理流水线。</p>
+                </div>
+                <div class="pipeline-section-actions">
+                  <span class="count-pill subtle" id="activePipelineCount">0 个任务</span>
+                  <button id="refreshTasksBtn">刷新</button>
+                  <button id="retryFailedBtn">重试失败整理</button>
+                </div>
+              </div>
+              <div id="activeTaskList" class="pipeline-board empty">暂无进行中的整理任务</div>
+            </section>
+            <section class="pipeline-section fold-section" data-fold-section>
+              <button class="pipeline-section-head fold-head" type="button" aria-expanded="true">
+                <div>
+                  <h3>已完成的任务</h3>
+                  <p>成功、失败和中断的整理记录。</p>
+                </div>
+                <span class="count-pill subtle" id="completedPipelineCount">0 个任务</span>
+              </button>
+              <div class="fold-body">
+                <div id="completedTaskList" class="pipeline-board empty">暂无已完成的整理任务</div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="runsView" class="view">
+          <div class="section-head">
+            <div>
+              <h2>运行记录</h2>
+            </div>
+            <div class="toolbar compact">
+              <select id="runAnalysisStatusFilter">
+                <option value="">全部分析状态</option>
+                <option value="succeeded">分析通过</option>
+                <option value="needs_review">需确认</option>
+                <option value="failed">分析失败</option>
+                <option value="unknown">状态未知</option>
+              </select>
+              <select id="runOrganizeStatusFilter">
+                <option value="">全部整理状态</option>
+                <option value="not_started">未整理</option>
+                <option value="running">整理中</option>
+                <option value="succeeded">整理完成</option>
+                <option value="failed">整理失败</option>
+                <option value="interrupted">整理中断</option>
+              </select>
+              <input id="runSourceFilter" placeholder="按源名称过滤" />
+              <button id="deleteSelectedRunsBtn" class="danger-lite" disabled>删除选中记录</button>
+            </div>
+          </div>
+          <div id="runList" class="run-table empty">暂无运行记录</div>
+        </section>
+
+        <section id="settingsView" class="view">
+          <div class="settings-layout">
+            <div class="settings-panels">
+              <section id="openlistPanel" class="settings-panel">
+                <div class="pane-head"><h2>OpenList</h2></div>
+                <label>地址<input id="openlistBaseUrl" /></label>
+                <div class="form-grid two">
+                  <label>账号<input id="openlistUsername" /></label>
+                  <label>密码<input id="openlistPassword" type="password" /></label>
+                </div>
+                <div class="form-grid three">
+                  <label>请求超时秒数<input id="openlistTimeout" type="number" min="1" /></label>
+                  <label>操作间隔秒数<input id="openlistInterval" type="number" min="0" step="0.5" /></label>
+                  <label>失败重试次数<input id="openlistRetries" type="number" min="0" /></label>
+                </div>
+                <label class="check"><input id="openlistRefreshAll" type="checkbox" /> 完整扫描时 refresh=True</label>
+                <button id="testOpenlistBtn">测试 OpenList 连接</button>
+              </section>
+
+              <section id="llmPanel" class="settings-panel">
+                <div class="pane-head"><h2>LLM</h2></div>
+                <label>中转站地址<input id="llmBaseUrl" /></label>
+                <label>ApiKey<input id="llmApiKey" type="password" /></label>
+                <div class="form-grid two">
+                  <label>模型名<input id="llmModel" /></label>
+                  <label>请求超时秒数<input id="llmTimeout" type="number" min="1" /></label>
+                </div>
+                <div class="toolbar compact">
+                  <button id="loadModelsBtn">获取模型列表</button>
+                  <select id="modelSelect"></select>
+                </div>
+              </section>
+
+              <section id="tmdbPanel" class="settings-panel">
+                <div class="pane-head"><h2>TMDB</h2></div>
+                <label>接口地址<input id="tmdbBaseUrl" /></label>
+                <label>ApiKey<input id="tmdbApiKey" type="password" /></label>
+                <div class="form-grid three">
+                  <label>使用语言<input id="tmdbLanguage" /></label>
+                  <label>可用语言列表<input id="tmdbLanguages" /></label>
+                  <label>请求超时秒数<input id="tmdbTimeout" type="number" min="1" /></label>
+                </div>
+              </section>
+
+              <section id="mediaPanel" class="settings-panel">
+                <div class="pane-head"><h2>媒体库</h2></div>
+                <label>源文件夹路径<input id="sourcePath" /></label>
+                <div class="form-grid two">
+                  <label>TV 媒体库路径<input id="tvMediaPath" /></label>
+                  <label>电影媒体库路径<input id="movieMediaPath" /></label>
+                </div>
+                <label>归档文件夹路径<input id="archivePath" /></label>
+                <label>归档路径模板<input id="archiveTemplate" /></label>
+                <label>TV 媒体库路径模板<input id="tvMediaTemplate" /></label>
+                <label>电影媒体库路径模板<input id="movieMediaTemplate" /></label>
+                <label class="check"><input id="includeEpisodeTitle" type="checkbox" /> 文件名追加 episode title</label>
+              </section>
+
+              <section id="scanPanel" class="settings-panel">
+                <div class="pane-head"><h2>扫描</h2></div>
+                <div class="form-grid two">
+                  <label>文本树最大深度<input id="treeMaxDepth" type="number" min="1" /></label>
+                  <label>文本树最大节点<input id="treeMaxNodes" type="number" min="10" /></label>
+                </div>
+                <label>视频扩展名<input id="videoExtensions" /></label>
+                <label>字幕扩展名<input id="subtitleExtensions" /></label>
+                <label>扫描忽略文件夹<input id="ignoredFolderNames" /></label>
+              </section>
+
+              <footer class="settings-footer">
+                <button id="saveConfigBtn" class="primary">保存设置</button>
+                <pre id="settingsMessage" class="message"></pre>
+              </footer>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="/app.js?v=20260523-settings-full-page"></script>
+  </body>
+</html>
